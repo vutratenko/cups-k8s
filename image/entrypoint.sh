@@ -49,7 +49,9 @@ start_avahi() {
   cp /opt/cups-k8s/avahi-daemon.conf /etc/avahi/avahi-daemon.conf
   mkdir -p /etc/avahi/services
   cp /opt/cups-k8s/avahi-services/*.service /etc/avahi/services/ 2>/dev/null || true
-  avahi-daemon --no-chroot --daemonize
+  if ! avahi-daemon --no-chroot --daemonize; then
+    log "WARNING: avahi-daemon failed to start; relying on CUPS DNS-SD only"
+  fi
 }
 
 start_cups() {
