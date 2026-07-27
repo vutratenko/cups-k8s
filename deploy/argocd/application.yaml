@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cups-k8s
+  namespace: shturval-cd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cups
+  source:
+    repoURL: https://github.com/vutratenko/cups-k8s.git
+    targetRevision: main
+    path: deploy/base
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

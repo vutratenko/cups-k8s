@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cups
+  namespace: cups
+  labels:
+    app.kubernetes.io/name: cups
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cups
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cups
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: pve-worker-2
+      containers:
+        - name: cups
+          image: registry.sion2k.ru/home/cups-hplip:0.1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PRINTER_NAME
+              value: HP_DeskJet_3050_J610
+            - name: PRINTER_USB_VIDPID
+              value: "03f0:9311"
+            - name: CUPS_STATE_DIR
+              value: /var/lib/cups-k8s
+          ports:
+            - name: ipp
+              containerPort: 631
+              hostPort: 631
+              protocol: TCP
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: cups-state
+              mountPath: /var/lib/cups-k8s
+            - name: dev-bus-usb
+              mountPath: /dev/bus/usb
+            - name: dev-usb-lp
+              mountPath: /dev/usb
+            - name: run-udev
+              mountPath: /run/udev
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - lpstat -r >/dev/null 2>&1
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - lpstat -r >/dev/null 2>&1
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+      volumes:
+        - name: cups-state
+          persistentVolumeClaim:
+            claimName: cups-state
+        - name: dev-bus-usb
+          hostPath:
+            path: /dev/bus/usb
+            type: Directory
+        - name: dev-usb-lp
+          hostPath:
+            path: /dev/usb
+            type: DirectoryOrCreate
+        - name: run-udev
+          hostPath:
+            path: /run/udev
+            type: Directory

@@ -1,0 +1,21 @@
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<!-- Placeholder; CUPS publishes IPP via BrowseLocalProtocols when sharing is on. -->
+<service-group>
+  <name replace-wildcards="yes">HP DeskJet 3050 J610 (CUPS)</name>
+  <service>
+    <type>_ipp._tcp</type>
+    <port>631</port>
+    <txt-record>txtvers=1</txt-record>
+    <txt-record>qtotal=1</txt-record>
+    <txt-record>Transparent=T</txt-record>
+    <txt-record>URF=W8,SRGB24,CP1,RS600</txt-record>
+    <txt-record>kind=document,envelope,photo</txt-record>
+    <txt-record>Color=T</txt-record>
+    <txt-record>Binary=T</txt-record>
+    <txt-record>Duplex=F</txt-record>
+    <txt-record>Copies=T</txt-record>
+    <txt-record>pdl=application/octet-stream,application/pdf,image/urf,image/pwg-raster</txt-record>
+    <txt-record>note=Managed by cups-k8s</txt-record>
+  </service>
+</service-group>
