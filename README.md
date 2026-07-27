@@ -32,9 +32,12 @@ flowchart LR
 
 ```bash
 make test
-make build IMAGE=registry.sion2k.ru/home/cups-hplip:0.1.0
+make build IMAGE=registry.sion2k.ru/home/cups-hplip:0.1.2
 docker login registry.sion2k.ru
-make push IMAGE=registry.sion2k.ru/home/cups-hplip:0.1.0
+make push IMAGE=registry.sion2k.ru/home/cups-hplip:0.1.2
+
+# один раз в namespace cups (или через deploy/scripts/apply-registry-pull-secret.sh):
+# DOCKER_LOGIN=... DOCKER_PASSWORD=... bash deploy/scripts/apply-registry-pull-secret.sh cups
 
 kubectl apply -f deploy/argocd/application.yaml
 # или без Argo CD:

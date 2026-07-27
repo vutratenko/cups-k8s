@@ -126,9 +126,6 @@ main() {
   init_state_dirs
   start_dbus
   start_avahi
-  start_cups
-  ensure_printer_queue || true
-  share_printers
   bootstrap_loop &
   exec /usr/sbin/cupsd -f
 }

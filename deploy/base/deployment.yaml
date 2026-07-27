@@ -21,9 +21,11 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       nodeSelector:
         kubernetes.io/hostname: pve-worker-2
+      imagePullSecrets:
+        - name: registry-sion2k-pull
       containers:
         - name: cups
-          image: registry.sion2k.ru/home/cups-hplip:0.1.0
+          image: registry.sion2k.ru/home/cups-hplip:0.1.2
           imagePullPolicy: IfNotPresent
           env:
             - name: PRINTER_NAME
