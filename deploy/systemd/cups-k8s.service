@@ -1,0 +1,22 @@
+[Unit]
+Description=CUPS USB printer (cups-k8s container)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=15
+ExecStartPre=/bin/mkdir -p /var/lib/cups-k8s
+ExecStartPre=-/usr/local/bin/ctr -n k8s.io tasks kill -s SIGTERM cups-k8s
+ExecStartPre=-/usr/local/bin/ctr -n k8s.io containers delete cups-k8s
+ExecStart=/usr/local/bin/ctr -n k8s.io run --rm --net-host --privileged \
+  --mount type=bind,src=/dev/bus/usb,dst=/dev/bus/usb,options=rbind:rw \
+  --mount type=bind,src=/dev/usb,dst=/dev/usb,options=rbind:rw \
+  --mount type=bind,src=/run/udev,dst=/run/udev,options=rbind:rw \
+  --mount type=bind,src=/var/lib/cups-k8s,dst=/var/lib/cups-k8s,options=rbind:rw \
+  registry.sion2k.ru/home/cups-hplip:0.1.13 cups-k8s
+ExecStop=-/usr/local/bin/ctr -n k8s.io tasks kill -s SIGTERM cups-k8s
+
+[Install]
+WantedBy=multi-user.target

@@ -3,7 +3,7 @@ set -euo pipefail
 
 export PRINTER_NAME="${PRINTER_NAME:-HP_DeskJet_3050_J610}"
 export PRINTER_USB_VIDPID="${PRINTER_USB_VIDPID:-03f0:9311}"
-export PRINTER_PPD="${PRINTER_PPD:-drv:///sample.drv/hpcups.drv/HP-Deskjet-3050-J610-series.ppd}"
+export PRINTER_PPD="${PRINTER_PPD:-drv:///hpcups.drv/hp-deskjet_3050_j610_series.ppd}"
 
 CUPS_STATE_DIR="${CUPS_STATE_DIR:-/var/lib/cups-k8s}"
 CUPS_ETC="${CUPS_ETC:-/etc/cups}"
@@ -24,8 +24,8 @@ wait_for_file() {
 }
 
 init_state_dirs() {
-  mkdir -p "$CUPS_STATE_DIR"/{etc-cups,spool,run-cups,cache,logs}
-  mkdir -p /run/dbus /run/avahi-daemon
+  mkdir -p "$CUPS_STATE_DIR/etc-cups"
+  mkdir -p /run/dbus /run/avahi-daemon /run/cups /var/spool/cups /var/cache/cups /var/log/cups
 
   if [[ ! -f "$CUPS_STATE_DIR/etc-cups/cups-files.conf" ]]; then
     cp -a /etc/cups/. "$CUPS_STATE_DIR/etc-cups/"
@@ -34,12 +34,6 @@ init_state_dirs() {
 
   cp -a "$CUPS_STATE_DIR/etc-cups/." /etc/cups/
   cp /opt/cups-k8s/cupsd.conf /etc/cups/cupsd.conf
-
-  rm -rf /var/spool/cups /run/cups /var/cache/cups /var/log/cups
-  ln -sfn "$CUPS_STATE_DIR/spool" /var/spool/cups
-  ln -sfn "$CUPS_STATE_DIR/run-cups" /run/cups
-  ln -sfn "$CUPS_STATE_DIR/cache" /var/cache/cups
-  ln -sfn "$CUPS_STATE_DIR/logs" /var/log/cups
 }
 
 sync_etc_state() {
@@ -56,10 +50,20 @@ start_dbus() {
 }
 
 start_avahi() {
+  if pgrep -x avahi-daemon >/dev/null; then
+    log "avahi-daemon already running on host; skipping"
+    return 0
+  fi
   cp /opt/cups-k8s/avahi-daemon.conf /etc/avahi/avahi-daemon.conf
   mkdir -p /etc/avahi/services
   cp /opt/cups-k8s/avahi-services/*.service /etc/avahi/services/ 2>/dev/null || true
-  if ! avahi-daemon --no-chroot --daemonize; then
+  avahi-daemon --no-chroot --daemonize &
+  local i=0
+  while ! pgrep -x avahi-daemon >/dev/null && [[ $i -lt 10 ]]; do
+    sleep 1
+    i=$((i + 1))
+  done
+  if ! pgrep -x avahi-daemon >/dev/null; then
     log "WARNING: avahi-daemon failed to start; relying on CUPS DNS-SD only"
   fi
 }
@@ -138,7 +142,6 @@ bootstrap_loop() {
 main() {
   init_state_dirs
   start_dbus
-  start_avahi
   bootstrap_loop &
   exec /usr/sbin/cupsd -f
 }

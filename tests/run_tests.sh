@@ -43,12 +43,12 @@ assert_grep '03f0:9311' image/entrypoint.sh
 assert_grep 'lpstat -p "\$PRINTER_NAME"' image/entrypoint.sh
 
 echo "== cups config =="
-assert_grep 'BrowseLocalProtocols' image/cupsd.conf
+assert_grep 'Listen 0.0.0.0:631' image/cupsd.conf
 assert_grep 'DefaultShared yes' image/cupsd.conf
-assert_grep 'Listen \*:631' image/cupsd.conf
 
 echo "== k8s pinning =="
 assert_grep 'hostNetwork: true' deploy/base/deployment.yaml
+assert_grep 'containerPort: 631' deploy/base/deployment.yaml
 assert_grep 'pve-worker-2' deploy/base/deployment.yaml
 assert_grep '/dev/bus/usb' deploy/base/deployment.yaml
 

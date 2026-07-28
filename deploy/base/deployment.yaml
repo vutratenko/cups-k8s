@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: cups
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: Recreate
   selector:
@@ -19,13 +19,16 @@ spec:
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
+      securityContext:
+        seccompProfile:
+          type: Unconfined
       nodeSelector:
         kubernetes.io/hostname: pve-worker-2
       imagePullSecrets:
         - name: registry-sion2k-pull
       containers:
         - name: cups
-          image: registry.sion2k.ru/home/cups-hplip:0.1.5
+          image: registry.sion2k.ru/home/cups-hplip:0.1.13
           imagePullPolicy: IfNotPresent
           env:
             - name: PRINTER_NAME
@@ -37,7 +40,6 @@ spec:
           ports:
             - name: ipp
               containerPort: 631
-              hostPort: 631
               protocol: TCP
           securityContext:
             privileged: true
