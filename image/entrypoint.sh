@@ -25,18 +25,28 @@ wait_for_file() {
 
 init_state_dirs() {
   mkdir -p "$CUPS_STATE_DIR"/{etc-cups,spool,run-cups,cache,logs}
-  mkdir -p /run/dbus /run/avahi-daemon /var/run/cups /var/log/cups /var/cache/cups
+  mkdir -p /run/dbus /run/avahi-daemon
 
-  if [[ ! -f "$CUPS_STATE_DIR/etc-cups/cupsd.conf" ]]; then
+  if [[ ! -f "$CUPS_STATE_DIR/etc-cups/cups-files.conf" ]]; then
+    cp -a /etc/cups/. "$CUPS_STATE_DIR/etc-cups/"
     cp /opt/cups-k8s/cupsd.conf "$CUPS_STATE_DIR/etc-cups/cupsd.conf"
   fi
 
-  rm -rf "$CUPS_ETC"
-  ln -sfn "$CUPS_STATE_DIR/etc-cups" "$CUPS_ETC"
+  cp -a "$CUPS_STATE_DIR/etc-cups/." /etc/cups/
+  cp /opt/cups-k8s/cupsd.conf /etc/cups/cupsd.conf
+
+  rm -rf /var/spool/cups /run/cups /var/cache/cups /var/log/cups
   ln -sfn "$CUPS_STATE_DIR/spool" /var/spool/cups
   ln -sfn "$CUPS_STATE_DIR/run-cups" /run/cups
   ln -sfn "$CUPS_STATE_DIR/cache" /var/cache/cups
   ln -sfn "$CUPS_STATE_DIR/logs" /var/log/cups
+}
+
+sync_etc_state() {
+  [[ -d /etc/cups && -w /etc/cups ]] || return 0
+  mkdir -p "$CUPS_STATE_DIR/etc-cups"
+  cp -a /etc/cups/. "$CUPS_STATE_DIR/etc-cups/"
+  cp /opt/cups-k8s/cupsd.conf "$CUPS_STATE_DIR/etc-cups/cupsd.conf"
 }
 
 start_dbus() {
@@ -107,6 +117,7 @@ ensure_printer_queue() {
   cupsenable "$PRINTER_NAME"
   lpoptions -d "$PRINTER_NAME" >/dev/null 2>&1 || true
   log "Queue $PRINTER_NAME ready"
+  sync_etc_state
 }
 
 share_printers() {
