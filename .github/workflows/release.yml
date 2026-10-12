@@ -10,6 +10,7 @@ permissions:
 
 env:
   IMAGE: registry.sion2k.ru/home/cups-hplip
+  SCANNER_IMAGE: registry.sion2k.ru/home/scanservjs-hplip
 
 jobs:
   publish:
@@ -32,3 +33,10 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:${{ steps.meta.outputs.version }}
             ${{ env.IMAGE }}:latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: image-scanner
+          push: true
+          tags: |
+            ${{ env.SCANNER_IMAGE }}:${{ steps.meta.outputs.version }}
+            ${{ env.SCANNER_IMAGE }}:latest

@@ -7,15 +7,22 @@ Wants=network-online.target
 Type=simple
 Restart=always
 RestartSec=15
-ExecStartPre=/bin/mkdir -p /var/lib/cups-k8s
+EnvironmentFile=-/etc/cups-k8s/registry.env
+ExecStartPre=/bin/mkdir -p /var/lib/cups-k8s/overrides /dev/usb
+ExecStartPre=/opt/cups-k8s/pull-image.sh registry.sion2k.ru/home/cups-hplip:0.1.14
 ExecStartPre=-/usr/local/bin/ctr -n k8s.io tasks kill -s SIGTERM cups-k8s
 ExecStartPre=-/usr/local/bin/ctr -n k8s.io containers delete cups-k8s
 ExecStart=/usr/local/bin/ctr -n k8s.io run --rm --net-host --privileged \
+  --hostname pve-worker-2 \
+  --mount type=bind,src=/var/lib/cups-k8s/overrides/cupsd.conf,dst=/opt/cups-k8s/cupsd.conf,options=rbind:ro \
+  --mount type=bind,src=/var/lib/cups-k8s/overrides/entrypoint.sh,dst=/opt/cups-k8s/entrypoint.sh,options=rbind:ro \
+  --mount type=bind,src=/var/lib/cups-k8s/overrides/cups-browsed.conf,dst=/opt/cups-k8s/cups-browsed.conf,options=rbind:ro \
+  --mount type=bind,src=/var/lib/cups-k8s/overrides/avahi-services,dst=/opt/cups-k8s/avahi-services,options=rbind:ro \
   --mount type=bind,src=/dev/bus/usb,dst=/dev/bus/usb,options=rbind:rw \
   --mount type=bind,src=/dev/usb,dst=/dev/usb,options=rbind:rw \
   --mount type=bind,src=/run/udev,dst=/run/udev,options=rbind:rw \
   --mount type=bind,src=/var/lib/cups-k8s,dst=/var/lib/cups-k8s,options=rbind:rw \
-  registry.sion2k.ru/home/cups-hplip:0.1.13 cups-k8s
+  registry.sion2k.ru/home/cups-hplip:0.1.14 cups-k8s
 ExecStop=-/usr/local/bin/ctr -n k8s.io tasks kill -s SIGTERM cups-k8s
 
 [Install]

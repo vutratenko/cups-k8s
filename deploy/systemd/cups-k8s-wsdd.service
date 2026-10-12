@@ -1,0 +1,16 @@
+[Unit]
+Description=WSD discovery for CUPS (Windows printer discovery)
+After=network-online.target cups-k8s.service
+Wants=network-online.target
+PartOf=cups-k8s.service
+
+[Service]
+Type=simple
+Restart=on-failure
+RestartSec=10
+Environment=WSDD_HOSTNAME=pve-worker-2
+Environment=WSDD_WORKGROUP=WORKGROUP
+ExecStart=/bin/sh -c 'IF=$$(ip route show default | awk "NR==1 {print $$5; exit}"); exec wsdd -D -i "$$IF" -n "$$WSDD_HOSTNAME" -w "$$WSDD_WORKGROUP"'
+
+[Install]
+WantedBy=multi-user.target

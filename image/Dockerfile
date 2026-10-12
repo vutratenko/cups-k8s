@@ -6,23 +6,27 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     avahi-daemon \
+    avahi-utils \
     ca-certificates \
     cups \
     cups-bsd \
+    cups-browsed \
     cups-client \
     cups-filters \
     dbus \
     hplip \
     ipp-usb \
+    iproute2 \
     libusb-1.0-0 \
     printer-driver-hpcups \
     usbutils \
     wget \
+    wsdd \
     && rm -rf /var/lib/apt/lists/*
 
 RUN usermod -aG lp root || true
 
-COPY cupsd.conf avahi-daemon.conf /opt/cups-k8s/
+COPY cupsd.conf cups-browsed.conf avahi-daemon.conf /opt/cups-k8s/
 COPY avahi-services/ /opt/cups-k8s/avahi-services/
 COPY entrypoint.sh /opt/cups-k8s/entrypoint.sh
 RUN chmod +x /opt/cups-k8s/entrypoint.sh

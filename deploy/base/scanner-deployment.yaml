@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scanner
+  namespace: cups
+  labels:
+    app.kubernetes.io/name: scanner
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: scanner
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: scanner
+    spec:
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/hostname: pve-worker-2
+      imagePullSecrets:
+        - name: registry-sion2k-pull
+      containers:
+        - name: scanservjs
+          image: registry.sion2k.ru/home/scanservjs-hplip:0.1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: OCR_LANG
+              value: rus+eng
+          ports:
+            - name: http
+              containerPort: 8080
+              hostPort: 8080
+              protocol: TCP
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: dev-bus-usb
+              mountPath: /dev/bus/usb
+            - name: dev-usb-lp
+              mountPath: /dev/usb
+            - name: run-udev
+              mountPath: /run/udev
+            - name: scan-output
+              mountPath: /var/lib/scanservjs/output
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+      volumes:
+        - name: dev-bus-usb
+          hostPath:
+            path: /dev/bus/usb
+            type: Directory
+        - name: dev-usb-lp
+          hostPath:
+            path: /dev/usb
+            type: DirectoryOrCreate
+        - name: run-udev
+          hostPath:
+            path: /run/udev
+            type: Directory
+        - name: scan-output
+          hostPath:
+            path: /var/lib/scanservjs/output
+            type: DirectoryOrCreate

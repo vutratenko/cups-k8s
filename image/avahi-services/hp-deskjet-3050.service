@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone='no'?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">HP DeskJet 3050 J610 on %h</name>
+  <service>
+    <type>_ipp._tcp</type>
+    <port>631</port>
+    <txt-record>txtvers=1</txt-record>
+    <txt-record>qtotal=1</txt-record>
+    <txt-record>Transparent=T</txt-record>
+    <txt-record>URF=W8,SRGB24,CP1,RS600</txt-record>
+    <txt-record>rp=printers/HP_DeskJet_3050_J610</txt-record>
+    <txt-record>ty=HP Deskjet 3050 J610 series</txt-record>
+    <txt-record>product=(HP Deskjet 3050 J610 series)</txt-record>
+    <txt-record>adminurl=http://pve-worker-2.local:631/printers/HP_DeskJet_3050_J610</txt-record>
+    <txt-record>note=Home LAN</txt-record>
+    <txt-record>Color=T</txt-record>
+    <txt-record>Binary=T</txt-record>
+    <txt-record>Duplex=F</txt-record>
+    <txt-record>Copies=T</txt-record>
+    <txt-record>pdl=application/octet-stream,application/pdf,image/urf,image/pwg-raster,application/vnd.cups-raster</txt-record>
+  </service>
+  <service>
+    <type>_universal._sub._ipp._tcp</type>
+    <txt-record>txtvers=1</txt-record>
+  </service>
+  <service>
+    <type>_printer._tcp</type>
+    <port>631</port>
+    <txt-record>txtvers=1</txt-record>
+    <txt-record>qtotal=1</txt-record>
+    <txt-record>rp=printers/HP_DeskJet_3050_J610</txt-record>
+    <txt-record>ty=HP Deskjet 3050 J610 series</txt-record>
+  </service>
+</service-group>

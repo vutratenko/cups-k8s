@@ -8,10 +8,14 @@ resources:
   - pvc.yaml
   - service.yaml
   - deployment.yaml
+  - scanner-service.yaml
+  - scanner-deployment.yaml
 
 commonLabels:
   app.kubernetes.io/part-of: cups-k8s
 
 images:
   - name: registry.sion2k.ru/home/cups-hplip
-    newTag: "0.1.13"
+    newTag: "0.1.14"
+  - name: registry.sion2k.ru/home/scanservjs-hplip
+    newTag: "0.1.14"
