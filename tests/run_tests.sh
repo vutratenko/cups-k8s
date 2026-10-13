@@ -72,6 +72,8 @@ assert_grep 'sbs20/scanservjs:v3.3.0' image-scanner/Dockerfile
 assert_grep 'docker.io/' image-scanner/Dockerfile
 assert_grep 'libsane-hpaio' image-scanner/Dockerfile
 assert_grep 'hpaio' image-scanner/Dockerfile
+assert_file image-scanner/entrypoint.sh
+assert_grep 'dbus-daemon --system' image-scanner/entrypoint.sh
 
 echo "== scanner k8s =="
 assert_file deploy/base/scanner-deployment.yaml

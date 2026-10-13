@@ -1,7 +1,7 @@
 .PHONY: test test-static test-entrypoint test-image test-scanner-image build push build-scanner push-scanner kustomize
 
 IMAGE ?= registry.sion2k.ru/home/cups-hplip:0.1.0
-SCANNER_IMAGE ?= registry.sion2k.ru/home/scanservjs-hplip:0.1.14
+SCANNER_IMAGE ?= registry.sion2k.ru/home/scanservjs-hplip:0.1.15
 
 test: test-static test-entrypoint
 

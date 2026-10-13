@@ -18,4 +18,4 @@ images:
   - name: registry.sion2k.ru/home/cups-hplip
     newTag: "0.1.14"
   - name: registry.sion2k.ru/home/scanservjs-hplip
-    newTag: "0.1.14"
+    newTag: "0.1.15"
